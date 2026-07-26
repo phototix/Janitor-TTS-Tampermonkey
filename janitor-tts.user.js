@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JanitorAI + ElevenLabs TTS
 // @namespace    http://tampermonkey.net/
-// @version      1.7.0
+// @version      1.7.1
 // @description  Auto-play bot responses via ElevenLabs TTS on JanitorAI
 // @author       you
 // @match        https://janitorai.com/chats/*
@@ -315,12 +315,6 @@
       setStatus('idle', '🔇 Voices loaded');
     };
 
-    keyIn.onkeydown = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        refreshVoices();
-      }
-    };
     refreshBtn.onclick = refreshVoices;
 
     saveBtn.onclick = () => {
