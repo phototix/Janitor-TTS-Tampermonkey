@@ -1,11 +1,15 @@
 // ==UserScript==
 // @name         JanitorAI + ElevenLabs TTS
 // @namespace    http://tampermonkey.net/
-// @version      1.6.0
+// @version      1.6.1
 // @description  Auto-play bot responses via ElevenLabs TTS on JanitorAI
 // @author       you
 // @match        https://janitorai.com/chats/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=janitorai.com
+// @homepageURL  https://github.com/phototix/Janitor-TTS-Tampermonkey
+// @supportURL   https://github.com/phototix/Janitor-TTS-Tampermonkey/issues
+// @updateURL    https://raw.githubusercontent.com/phototix/Janitor-TTS-Tampermonkey/main/janitor-tts.user.js
+// @downloadURL  https://raw.githubusercontent.com/phototix/Janitor-TTS-Tampermonkey/main/janitor-tts.user.js
 // @run-at       document-end
 // @grant        GM.xmlHttpRequest
 // ==/UserScript==
