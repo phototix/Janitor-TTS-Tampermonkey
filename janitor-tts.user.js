@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JanitorAI + ElevenLabs TTS
 // @namespace    http://tampermonkey.net/
-// @version      1.7.1
+// @version      1.7.2
 // @description  Auto-play bot responses via ElevenLabs TTS on JanitorAI
 // @author       you
 // @match        https://janitorai.com/chats/*
@@ -24,6 +24,7 @@
     AUTO_PLAY: true,
   };
   const STORAGE_KEY = 'jtts_config_v1';
+  const PANEL_POS_KEY = 'jtts_panel_pos_v1';
   let ttsAudio = null;
   let audioCtx = null;
   let currentSource = null;
@@ -242,6 +243,7 @@
         color: #e0e0e0; box-shadow: 0 4px 20px rgba(0,0,0,0.5); user-select: none;
       }
       #jtts-panel .hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-weight:600; color:#c2b3ff; }
+      #jtts-panel .hdr-actions { display:flex; align-items:center; gap:6px; }
       #jtts-panel .row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
       #jtts-panel .row label { flex-shrink:0; min-width:36px; color:#93959c; font-size:12px; }
       #jtts-panel input, #jtts-panel select { flex:1; background:#2a2a2a; color:#e0e0e0; border:1px solid #3a3a3a; padding:4px 8px; border-radius:6px; font-size:12px; }
@@ -252,6 +254,8 @@
       #jtts-panel .st .val.idle { color:#93959c; }
       #jtts-panel .btn { background:#4a3a7a; color:#fff; border:none; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer; }
       #jtts-panel .btn:hover { background:#5b5b9a; }
+      #jtts-panel .btn.drag { padding:4px 8px; cursor:grab; }
+      #jtts-panel .btn.drag:active { cursor:grabbing; }
       #jtts-panel .btn.refresh { flex: 0 0 auto; padding: 4px 8px; }
       #jtts-panel .btn.save { width: 100%; margin: 6px 0 0; background:#2f7a4a; }
       #jtts-panel .btn.save:hover { background:#3a9158; }
@@ -262,7 +266,7 @@
     const panel = document.createElement('div');
     panel.id = 'jtts-panel';
     panel.innerHTML = `
-      <div class="hdr"><span>🎤 TTS</span><button class="btn" id="jtts-min">−</button></div>
+      <div class="hdr"><span>🎤 TTS</span><div class="hdr-actions"><button class="btn drag" id="jtts-drag" title="Drag panel">⠿</button><button class="btn" id="jtts-min">−</button></div></div>
       <div id="jtts-body">
         <div class="row"><label>Key</label><input type="password" id="jtts-key" placeholder="ElevenLabs API key"></div>
         <div class="row"><label>Voice</label><select id="jtts-voice"><option value="">Enter key, then refresh</option></select><button class="btn refresh" id="jtts-refresh" title="Refresh voices">⟳</button></div>
@@ -271,6 +275,22 @@
         <div class="st"><span class="lbl">Status:</span><span class="val idle" id="jtts-status">🔇 Idle</span><button class="btn" id="jtts-stop">⏹ Stop</button></div>
       </div>`;
     document.body.appendChild(panel);
+
+    // Restore saved panel position (if any)
+    try {
+      const savedPos = localStorage.getItem(PANEL_POS_KEY);
+      if (savedPos) {
+        const pos = JSON.parse(savedPos);
+        if (typeof pos.left === 'number' && typeof pos.top === 'number') {
+          panel.style.left = `${pos.left}px`;
+          panel.style.top = `${pos.top}px`;
+          panel.style.right = 'auto';
+          panel.style.bottom = 'auto';
+        }
+      }
+    } catch (e) {
+      console.warn('[JanitorTTS] Failed to restore panel position', e);
+    }
 
     let minimized = false;
     document.getElementById('jtts-min').onclick = () => {
@@ -285,6 +305,7 @@
     const autoCb = document.getElementById('jtts-auto');
     const refreshBtn = document.getElementById('jtts-refresh');
     const saveBtn = document.getElementById('jtts-save');
+    const dragBtn = document.getElementById('jtts-drag');
 
     keyIn.value = CONFIG.ELEVENLABS_API_KEY || '';
     autoCb.checked = CONFIG.AUTO_PLAY;
@@ -329,6 +350,43 @@
       CONFIG.AUTO_PLAY = autoCb.checked;
       persistConfig();
       setStatus('idle', '🔇 Saved');
+    };
+
+    // Draggable panel via drag icon
+    dragBtn.onpointerdown = (ev) => {
+      ev.preventDefault();
+      const rect = panel.getBoundingClientRect();
+      const startX = ev.clientX;
+      const startY = ev.clientY;
+      const originLeft = rect.left;
+      const originTop = rect.top;
+
+      panel.style.left = `${originLeft}px`;
+      panel.style.top = `${originTop}px`;
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+
+      const onMove = (e) => {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const maxLeft = window.innerWidth - panel.offsetWidth;
+        const maxTop = window.innerHeight - panel.offsetHeight;
+        const nextLeft = Math.max(0, Math.min(maxLeft, originLeft + dx));
+        const nextTop = Math.max(0, Math.min(maxTop, originTop + dy));
+        panel.style.left = `${nextLeft}px`;
+        panel.style.top = `${nextTop}px`;
+      };
+
+      const onUp = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        const left = parseInt(panel.style.left || '0', 10);
+        const top = parseInt(panel.style.top || '0', 10);
+        localStorage.setItem(PANEL_POS_KEY, JSON.stringify({ left, top }));
+      };
+
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
     };
 
     if (CONFIG.ELEVENLABS_API_KEY) {
