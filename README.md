@@ -11,30 +11,12 @@ Tampermonkey userscript that adds auto Text-to-Speech (ElevenLabs) to JanitorAI 
 - Stop button
 - Floating control panel UI
 
-## Files
-
-- `janitor-tts.user.js` - Tampermonkey userscript
-- `index.html` - local helper page
-- `server.js` - tiny local static server for easy install/update
-
 ## Quick start
 
 1. Install Tampermonkey in your browser.
-2. Run local server:
-
-```bash
-node server.js
-```
-
-3. Open:
-
-```text
-http://localhost:8015/janitor-tts.user.js
-```
-
-4. Install/update the script in Tampermonkey.
-5. Open JanitorAI chat page (`https://janitorai.com/chats/...`).
-6. Enter ElevenLabs API key in the panel and pick a voice.
+2. Open [https://raw.githubusercontent.com/phototix/Janitor-TTS-Tampermonkey/main/janitor-tts.user.js](https://raw.githubusercontent.com/phototix/Janitor-TTS-Tampermonkey/main/janitor-tts.user.js) and confirm install/update.
+3. Open JanitorAI chat page (`https://janitorai.com/chats/...`).
+4. Enter ElevenLabs API key in the panel and pick a voice.
 
 ## Notes
 
