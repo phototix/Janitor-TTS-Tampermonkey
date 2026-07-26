@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JanitorAI + ElevenLabs TTS</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0d0d0d;
+    color: #e0e0e0;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  h1 { color: #c2b3ff; font-size: 24px; margin-bottom: 8px; }
+  h2 { color: #c2b3ff; font-size: 18px; margin-top: 28px; }
+  code {
+    background: #1e1e1e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #a8d8ea;
+  }
+  .step {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+  .step .num {
+    display: inline-block;
+    background: #4a3a7a;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 700;
+    margin-right: 8px;
+    line-height: 24px;
+    font-size: 13px;
+  }
+  a { color: #8b7ed4; }
+  hr { border: none; border-top: 1px solid #2a2a2a; margin: 24px 0; }
+</style>
+</head>
+<body>
+<h1>JanitorAI + ElevenLabs TTS</h1>
+<p>A Tampermonkey userscript that adds <strong>Text-to-Speech</strong> via ElevenLabs to JanitorAI chat pages.</p>
+
+<h2>Installation</h2>
+
+<div class="step">
+  <span class="num">1</span>
+  Install the <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> browser extension (Chrome, Firefox, Safari, Edge)
+</div>
+
+<div class="step">
+  <span class="num">2</span>
+  <a href="janitor-tts.user.js" download>Click here to download the userscript</a> — Tampermonkey will detect it and prompt you to install.
+</div>
+
+<div class="step">
+  <span class="num">3</span>
+  Visit <a href="https://janitorai.com/chats/2697448903" target="_blank">your chat page</a> — look for the <strong>TTS panel</strong> in the bottom-right corner.
+</div>
+
+<h2>Usage</h2>
+<div class="step">
+  <strong>1.</strong> Paste your ElevenLabs API key into the <strong>Key</strong> field<br>
+  <strong>2.</strong> Select a voice from the <strong>Voice</strong> dropdown<br>
+  <strong>3.</strong> Toggle <strong>Auto-play</strong> on/off as desired<br>
+  <strong>4.</strong> Send a message — bot responses will auto-play!
+</div>
+
+<h2>Features</h2>
+<ul>
+  <li>Auto-plays bot responses via ElevenLabs TTS</li>
+  <li>Voice selector (fetches available voices from your ElevenLabs account)</li>
+  <li>Auto-play toggle</li>
+  <li>Stop button to halt playback</li>
+  <li>Minimizable panel</li>
+  <li>Works on all JanitorAI chat pages</li>
+</ul>
+
+<hr>
+<p style="color:#93959c;font-size:13px;text-align:center;">
+  Serve this page locally on port 8015, or open the .user.js file directly in your browser.
+</p>
+</body>
+</html>
