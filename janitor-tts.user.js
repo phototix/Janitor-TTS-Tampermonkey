@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JanitorAI + ElevenLabs TTS
 // @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.7.0
 // @description  Auto-play bot responses via ElevenLabs TTS on JanitorAI
 // @author       you
 // @match        https://janitorai.com/chats/*
@@ -23,6 +23,7 @@
     TTS_MODEL_ID: 'eleven_multilingual_v2',
     AUTO_PLAY: true,
   };
+  const STORAGE_KEY = 'jtts_config_v1';
   let ttsAudio = null;
   let audioCtx = null;
   let currentSource = null;
@@ -42,11 +43,33 @@
     });
   }
 
-  async function fetchVoices() {
-    if (!CONFIG.ELEVENLABS_API_KEY) return [];
+  function loadConfig() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (typeof saved.ELEVENLABS_API_KEY === 'string') CONFIG.ELEVENLABS_API_KEY = saved.ELEVENLABS_API_KEY;
+      if (typeof saved.TTS_VOICE_ID === 'string') CONFIG.TTS_VOICE_ID = saved.TTS_VOICE_ID;
+      if (typeof saved.AUTO_PLAY === 'boolean') CONFIG.AUTO_PLAY = saved.AUTO_PLAY;
+    } catch (e) {
+      console.warn('[JanitorTTS] Failed to load config', e);
+    }
+  }
+
+  function persistConfig() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ELEVENLABS_API_KEY: CONFIG.ELEVENLABS_API_KEY,
+      TTS_VOICE_ID: CONFIG.TTS_VOICE_ID,
+      AUTO_PLAY: CONFIG.AUTO_PLAY,
+    }));
+  }
+
+  async function fetchVoices(apiKey) {
+    const key = apiKey || CONFIG.ELEVENLABS_API_KEY;
+    if (!key) return [];
     try {
       const r = await gmRequest('GET', 'https://api.elevenlabs.io/v1/voices', {
-        'xi-api-key': CONFIG.ELEVENLABS_API_KEY,
+        'xi-api-key': key,
       });
       return JSON.parse(r.responseText).voices || [];
     } catch { return []; }
@@ -207,6 +230,8 @@
 
   // ---- UI ----
   function initUI() {
+    loadConfig();
+
     const style = document.createElement('style');
     style.textContent = `
       #jtts-panel {
@@ -227,6 +252,9 @@
       #jtts-panel .st .val.idle { color:#93959c; }
       #jtts-panel .btn { background:#4a3a7a; color:#fff; border:none; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer; }
       #jtts-panel .btn:hover { background:#5b5b9a; }
+      #jtts-panel .btn.refresh { flex: 0 0 auto; padding: 4px 8px; }
+      #jtts-panel .btn.save { width: 100%; margin: 6px 0 0; background:#2f7a4a; }
+      #jtts-panel .btn.save:hover { background:#3a9158; }
       .tts-cb input { accent-color:#6b5b9a; }
     `;
     document.head.appendChild(style);
@@ -237,8 +265,9 @@
       <div class="hdr"><span>🎤 TTS</span><button class="btn" id="jtts-min">−</button></div>
       <div id="jtts-body">
         <div class="row"><label>Key</label><input type="password" id="jtts-key" placeholder="ElevenLabs API key"></div>
-        <div class="row"><label>Voice</label><select id="jtts-voice"><option value="">Enter key first</option></select></div>
+        <div class="row"><label>Voice</label><select id="jtts-voice"><option value="">Enter key, then refresh</option></select><button class="btn refresh" id="jtts-refresh" title="Refresh voices">⟳</button></div>
         <div class="row tts-cb"><label>Auto</label><input type="checkbox" id="jtts-auto" checked><label style="min-width:auto">Auto-play</label></div>
+        <button class="btn save" id="jtts-save">Save</button>
         <div class="st"><span class="lbl">Status:</span><span class="val idle" id="jtts-status">🔇 Idle</span><button class="btn" id="jtts-stop">⏹ Stop</button></div>
       </div>`;
     document.body.appendChild(panel);
@@ -250,17 +279,27 @@
       document.getElementById('jtts-min').textContent = minimized ? '+' : '−';
     };
     document.getElementById('jtts-stop').onclick = stopTTS;
-    document.getElementById('jtts-auto').onchange = function () { CONFIG.AUTO_PLAY = this.checked; };
 
     const keyIn = document.getElementById('jtts-key');
     const voiceSel = document.getElementById('jtts-voice');
+    const autoCb = document.getElementById('jtts-auto');
+    const refreshBtn = document.getElementById('jtts-refresh');
+    const saveBtn = document.getElementById('jtts-save');
 
-    keyIn.onchange = async function () {
-      CONFIG.ELEVENLABS_API_KEY = this.value;
+    keyIn.value = CONFIG.ELEVENLABS_API_KEY || '';
+    autoCb.checked = CONFIG.AUTO_PLAY;
+
+    const refreshVoices = async () => {
+      const draftKey = keyIn.value.trim();
+      if (!draftKey) {
+        setStatus('idle', '🔇 Enter API key');
+        return;
+      }
       voiceSel.innerHTML = '<option value="">Loading...</option>';
-      const voices = await fetchVoices();
+      const voices = await fetchVoices(draftKey);
       if (voices.length === 0) {
         voiceSel.innerHTML = '<option value="">No voices found</option>';
+        setStatus('idle', '🔇 Voice load failed');
         return;
       }
       voiceSel.innerHTML = '<option value="">Select a voice...</option>';
@@ -270,8 +309,37 @@
         opt.textContent = v.name + (v.labels?.accent ? ` (${v.labels.accent})` : '');
         voiceSel.appendChild(opt);
       }
+      if (CONFIG.TTS_VOICE_ID) {
+        voiceSel.value = CONFIG.TTS_VOICE_ID;
+      }
+      setStatus('idle', '🔇 Voices loaded');
     };
-    voiceSel.onchange = function () { CONFIG.TTS_VOICE_ID = this.value; };
+
+    keyIn.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        refreshVoices();
+      }
+    };
+    refreshBtn.onclick = refreshVoices;
+
+    saveBtn.onclick = () => {
+      const draftKey = keyIn.value.trim();
+      const draftVoice = voiceSel.value;
+      if (!draftKey || !draftVoice) {
+        setStatus('idle', '🔇 Set key + voice first');
+        return;
+      }
+      CONFIG.ELEVENLABS_API_KEY = draftKey;
+      CONFIG.TTS_VOICE_ID = draftVoice;
+      CONFIG.AUTO_PLAY = autoCb.checked;
+      persistConfig();
+      setStatus('idle', '🔇 Saved');
+    };
+
+    if (CONFIG.ELEVENLABS_API_KEY) {
+      refreshVoices();
+    }
 
     // Start watcher after page settles
     setTimeout(startWatcher, 3000);
