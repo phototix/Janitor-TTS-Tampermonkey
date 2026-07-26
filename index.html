@@ -3,92 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JanitorAI + ElevenLabs TTS</title>
+<title>Janitor-TTS-Tampermonkey</title>
 <style>
+  :root {
+    --bg: #0c0c0f;
+    --panel: #17171f;
+    --line: #2d2d3d;
+    --text: #e9e9f2;
+    --muted: #a9aac4;
+    --accent: #67d58b;
+    --accent-2: #8f81ff;
+  }
+  * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0d0d0d;
-    color: #e0e0e0;
-    max-width: 680px;
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+      radial-gradient(1200px 500px at 10% -20%, #2d2350 0%, transparent 60%),
+      radial-gradient(1200px 500px at 90% -30%, #1e4b3a 0%, transparent 55%),
+      var(--bg);
+    color: var(--text);
+  }
+  .wrap {
+    max-width: 860px;
     margin: 0 auto;
-    padding: 40px 20px;
-    line-height: 1.6;
+    padding: 32px 18px 56px;
   }
-  h1 { color: #c2b3ff; font-size: 24px; margin-bottom: 8px; }
-  h2 { color: #c2b3ff; font-size: 18px; margin-top: 28px; }
-  code {
-    background: #1e1e1e;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 14px;
-    color: #a8d8ea;
+  .hero {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
   }
-  .step {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    padding: 16px;
-    margin: 12px 0;
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.65rem;
+    color: #f2f2ff;
   }
-  .step .num {
+  p { color: var(--muted); margin: 10px 0; line-height: 1.6; }
+  h2 {
+    margin: 26px 0 10px;
+    color: #d6d2ff;
+    font-size: 1.1rem;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .btn {
     display: inline-block;
-    background: #4a3a7a;
-    color: #fff;
-    width: 24px;
-    height: 24px;
-    text-align: center;
-    border-radius: 50%;
-    font-weight: 700;
-    margin-right: 8px;
-    line-height: 24px;
-    font-size: 13px;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: #222234;
+    color: #f6f6ff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
   }
-  a { color: #8b7ed4; }
-  hr { border: none; border-top: 1px solid #2a2a2a; margin: 24px 0; }
+  .btn.primary {
+    background: var(--accent);
+    border-color: #44b76b;
+    color: #04230f;
+    font-weight: 700;
+  }
+  .card {
+    margin-top: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  ol, ul { margin: 10px 0 0 20px; color: var(--muted); }
+  li { margin: 6px 0; }
+  code {
+    background: #252538;
+    border: 1px solid #35354c;
+    border-radius: 6px;
+    padding: 2px 6px;
+    color: #e0dcff;
+  }
+  a { color: var(--accent-2); }
+  .tiny { font-size: 0.87rem; color: #8d8ead; }
 </style>
 </head>
 <body>
-<h1>JanitorAI + ElevenLabs TTS</h1>
-<p>A Tampermonkey userscript that adds <strong>Text-to-Speech</strong> via ElevenLabs to JanitorAI chat pages.</p>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Janitor-TTS-Tampermonkey</h1>
+      <p>Auto Text-to-Speech for JanitorAI replies using ElevenLabs. This page is designed for GitHub Pages hosting.</p>
+      <div class="row">
+        <a class="btn primary" href="https://raw.githubusercontent.com/phototix/Janitor-TTS-Tampermonkey/main/janitor-tts.user.js">Install Userscript</a>
+        <a class="btn" href="https://github.com/phototix/Janitor-TTS-Tampermonkey">GitHub Repo</a>
+        <a class="btn" href="https://github.com/phototix/Janitor-TTS-Tampermonkey/releases">Releases</a>
+      </div>
+    </div>
 
-<h2>Installation</h2>
+    <h2>Quick Start</h2>
+    <div class="card">
+      <ol>
+        <li>Install <a href="https://www.tampermonkey.net/" target="_blank" rel="noreferrer">Tampermonkey</a>.</li>
+        <li>Click <strong>Install Userscript</strong> above and confirm install/update.</li>
+        <li>Open your JanitorAI chat page.</li>
+        <li>In TTS panel: enter API key -> refresh voices -> select voice -> click <strong>Save</strong>.</li>
+        <li>Chat and bot replies will auto-play if enabled.</li>
+      </ol>
+    </div>
 
-<div class="step">
-  <span class="num">1</span>
-  Install the <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> browser extension (Chrome, Firefox, Safari, Edge)
-</div>
+    <h2>Usage Flow (v1.7.0+)</h2>
+    <div class="card">
+      <ul>
+        <li>Enter API key</li>
+        <li>Press Enter or click refresh button beside Voice</li>
+        <li>Select voice</li>
+        <li>Optional: toggle Auto-play</li>
+        <li>Click <strong>Save</strong> (stored in localStorage)</li>
+      </ul>
+    </div>
 
-<div class="step">
-  <span class="num">2</span>
-  <a href="janitor-tts.user.js" download>Click here to download the userscript</a> — Tampermonkey will detect it and prompt you to install.
-</div>
-
-<div class="step">
-  <span class="num">3</span>
-  Visit <a href="https://janitorai.com/chats/2697448903" target="_blank">your chat page</a> — look for the <strong>TTS panel</strong> in the bottom-right corner.
-</div>
-
-<h2>Usage</h2>
-<div class="step">
-  <strong>1.</strong> Paste your ElevenLabs API key into the <strong>Key</strong> field<br>
-  <strong>2.</strong> Select a voice from the <strong>Voice</strong> dropdown<br>
-  <strong>3.</strong> Toggle <strong>Auto-play</strong> on/off as desired<br>
-  <strong>4.</strong> Send a message — bot responses will auto-play!
-</div>
-
-<h2>Features</h2>
-<ul>
-  <li>Auto-plays bot responses via ElevenLabs TTS</li>
-  <li>Voice selector (fetches available voices from your ElevenLabs account)</li>
-  <li>Auto-play toggle</li>
-  <li>Stop button to halt playback</li>
-  <li>Minimizable panel</li>
-  <li>Works on all JanitorAI chat pages</li>
-</ul>
-
-<hr>
-<p style="color:#93959c;font-size:13px;text-align:center;">
-  Serve this page locally on port 8015, or open the .user.js file directly in your browser.
-</p>
+    <h2>GitHub Pages Setup</h2>
+    <div class="card">
+      <ol>
+        <li>Go to repo settings -> <strong>Pages</strong>.</li>
+        <li>Set source to <strong>Deploy from a branch</strong>.</li>
+        <li>Select branch <code>main</code>, folder <code>/ (root)</code>.</li>
+        <li>Save and wait for publish URL.</li>
+      </ol>
+      <p class="tiny">Tip: keep userscript metadata <code>@updateURL</code> and <code>@downloadURL</code> pointed to the raw GitHub URL.</p>
+    </div>
+  </div>
 </body>
 </html>
