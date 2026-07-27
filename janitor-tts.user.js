@@ -31,6 +31,8 @@
   let lastSeenHash = '';
   let pendingText = '';
   let pendingTimer = null;
+  let streamingMsgEl = null;
+  let streamingBaseText = '';
 
   // ---- GM.xmlHttpRequest wrappers ----
   function gmRequest(method, url, headers, body, responseType) {
@@ -175,7 +177,7 @@
         setStatus('speaking', '🔊 Queued...');
         speak(finalText);
       }
-    }, 1400);
+    }, 2000);
   }
 
   function getLatestBotMessage(scroller) {
@@ -224,7 +226,22 @@
 
       // Skip placeholder messages while bot is generating
       const lower = text.toLowerCase();
-      if (/replying|typing|thinking|generating/i.test(lower)) return;
+      if (/replying|typing|thinking|generating/i.test(lower)) {
+        streamingMsgEl = null;
+        streamingBaseText = '';
+        return;
+      }
+
+      // Streaming detection: same element, text still growing
+      if (latest === streamingMsgEl && text.length > streamingBaseText.length && text.startsWith(streamingBaseText)) {
+        streamingBaseText = text;
+        if (pendingTimer) clearTimeout(pendingTimer);
+        return;
+      }
+
+      // New message or streaming finished
+      streamingMsgEl = latest;
+      streamingBaseText = text;
 
       const hash = toHash(text);
       if (hash === lastSeenHash) return;

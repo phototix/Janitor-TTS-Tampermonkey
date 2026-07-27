@@ -29,6 +29,8 @@ Tampermonkey userscript that adds auto Text-to-Speech (ElevenLabs) to JanitorAI 
 
 - Added model selector dropdown (eleven_multilingual_v2, eleven_v3)
 - Model selection is persisted with other settings
+- Streaming detection: TTS waits for full bot response before speaking
+- Debounce increased to 2000ms for stability
 
 ### v1.7.3
 
