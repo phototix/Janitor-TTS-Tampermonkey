@@ -25,6 +25,11 @@ Tampermonkey userscript that adds auto Text-to-Speech (ElevenLabs) to JanitorAI 
 
 ## Changelog
 
+### v1.7.4
+
+- Added model selector dropdown (eleven_multilingual_v2, eleven_v3)
+- Model selection is persisted with other settings
+
 ### v1.7.3
 
 - Filter out placeholder messages ("replying...", "typing...") while bot is generating

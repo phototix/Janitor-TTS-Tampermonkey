@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JanitorAI + ElevenLabs TTS
 // @namespace    http://tampermonkey.net/
-// @version      1.7.3
+// @version      1.7.4
 // @description  Auto-play bot responses via ElevenLabs TTS on JanitorAI
 // @author       you
 // @match        https://janitorai.com/chats/*
@@ -51,6 +51,7 @@
       const saved = JSON.parse(raw);
       if (typeof saved.ELEVENLABS_API_KEY === 'string') CONFIG.ELEVENLABS_API_KEY = saved.ELEVENLABS_API_KEY;
       if (typeof saved.TTS_VOICE_ID === 'string') CONFIG.TTS_VOICE_ID = saved.TTS_VOICE_ID;
+      if (typeof saved.TTS_MODEL_ID === 'string') CONFIG.TTS_MODEL_ID = saved.TTS_MODEL_ID;
       if (typeof saved.AUTO_PLAY === 'boolean') CONFIG.AUTO_PLAY = saved.AUTO_PLAY;
     } catch (e) {
       console.warn('[JanitorTTS] Failed to load config', e);
@@ -61,6 +62,7 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ELEVENLABS_API_KEY: CONFIG.ELEVENLABS_API_KEY,
       TTS_VOICE_ID: CONFIG.TTS_VOICE_ID,
+      TTS_MODEL_ID: CONFIG.TTS_MODEL_ID,
       AUTO_PLAY: CONFIG.AUTO_PLAY,
     }));
   }
@@ -274,6 +276,7 @@
       <div id="jtts-body">
         <div class="row"><label>Key</label><input type="password" id="jtts-key" placeholder="ElevenLabs API key"></div>
         <div class="row"><label>Voice</label><select id="jtts-voice"><option value="">Enter key, then refresh</option></select><button class="btn refresh" id="jtts-refresh" title="Refresh voices">⟳</button></div>
+        <div class="row"><label>Model</label><select id="jtts-model"><option value="eleven_multilingual_v2">eleven_multilingual_v2</option><option value="eleven_v3">eleven_v3</option></select></div>
         <div class="row tts-cb"><label>Auto</label><input type="checkbox" id="jtts-auto" checked><label style="min-width:auto">Auto-play</label></div>
         <button class="btn save" id="jtts-save">Save</button>
         <div class="st"><span class="lbl">Status:</span><span class="val idle" id="jtts-status">🔇 Idle</span><button class="btn" id="jtts-stop">⏹ Stop</button></div>
@@ -306,12 +309,14 @@
 
     const keyIn = document.getElementById('jtts-key');
     const voiceSel = document.getElementById('jtts-voice');
+    const modelSel = document.getElementById('jtts-model');
     const autoCb = document.getElementById('jtts-auto');
     const refreshBtn = document.getElementById('jtts-refresh');
     const saveBtn = document.getElementById('jtts-save');
     const dragBtn = document.getElementById('jtts-drag');
 
     keyIn.value = CONFIG.ELEVENLABS_API_KEY || '';
+    modelSel.value = CONFIG.TTS_MODEL_ID;
     autoCb.checked = CONFIG.AUTO_PLAY;
 
     const refreshVoices = async () => {
@@ -351,6 +356,7 @@
       }
       CONFIG.ELEVENLABS_API_KEY = draftKey;
       CONFIG.TTS_VOICE_ID = draftVoice;
+      CONFIG.TTS_MODEL_ID = modelSel.value;
       CONFIG.AUTO_PLAY = autoCb.checked;
       persistConfig();
       setStatus('idle', '🔇 Saved');
