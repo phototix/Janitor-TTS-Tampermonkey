@@ -246,7 +246,7 @@
         font: 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         color: #e0e0e0; box-shadow: 0 4px 20px rgba(0,0,0,0.5); user-select: none;
       }
-      #jtts-panel .hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-weight:600; color:#c2b3ff; }
+      #jtts-panel .hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-weight:600; color:#c2b3ff; cursor:grab; }
       #jtts-panel .hdr-actions { display:flex; align-items:center; gap:6px; }
       #jtts-panel .row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
       #jtts-panel .row label { flex-shrink:0; min-width:36px; color:#93959c; font-size:12px; }
@@ -356,8 +356,7 @@
       setStatus('idle', '🔇 Saved');
     };
 
-    // Draggable panel via drag icon
-    dragBtn.onpointerdown = (ev) => {
+    function startDrag(ev) {
       ev.preventDefault();
       const rect = panel.getBoundingClientRect();
       const startX = ev.clientX;
@@ -391,6 +390,15 @@
 
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onUp);
+    }
+
+    // Draggable via drag icon
+    dragBtn.onpointerdown = startDrag;
+
+    // Draggable via header area (except minimize button)
+    panel.querySelector('.hdr').onpointerdown = (ev) => {
+      if (ev.target.closest('#jtts-min')) return;
+      startDrag(ev);
     };
 
     if (CONFIG.ELEVENLABS_API_KEY) {
