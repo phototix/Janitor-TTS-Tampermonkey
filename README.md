@@ -25,6 +25,11 @@ Tampermonkey userscript that adds auto Text-to-Speech (ElevenLabs) to JanitorAI 
 
 ## Changelog
 
+### v1.7.3
+
+- Filter out placeholder messages ("replying...", "typing...") while bot is generating
+- TTS now waits for actual bot response before speaking
+
 ### v1.7.2
 
 - Added draggable icon on floating panel header

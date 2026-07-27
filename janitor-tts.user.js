@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JanitorAI + ElevenLabs TTS
 // @namespace    http://tampermonkey.net/
-// @version      1.7.2
+// @version      1.7.3
 // @description  Auto-play bot responses via ElevenLabs TTS on JanitorAI
 // @author       you
 // @match        https://janitorai.com/chats/*
@@ -219,6 +219,10 @@
       if (!latest || !CONFIG.AUTO_PLAY) return;
       const text = getMsgText(latest);
       if (!text || text.length < 3) return;
+
+      // Skip placeholder messages while bot is generating
+      const lower = text.toLowerCase();
+      if (/replying|typing|thinking|generating/i.test(lower)) return;
 
       const hash = toHash(text);
       if (hash === lastSeenHash) return;
