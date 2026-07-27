@@ -250,7 +250,7 @@
       #jtts-panel .hdr-actions { display:flex; align-items:center; gap:6px; }
       #jtts-panel .row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
       #jtts-panel .row label { flex-shrink:0; min-width:36px; color:#93959c; font-size:12px; }
-      #jtts-panel input, #jtts-panel select { flex:1; background:#2a2a2a; color:#e0e0e0; border:1px solid #3a3a3a; padding:4px 8px; border-radius:6px; font-size:12px; }
+      #jtts-panel input, #jtts-panel select { flex:1; min-width:0; background:#2a2a2a; color:#e0e0e0; border:1px solid #3a3a3a; padding:4px 8px; border-radius:6px; font-size:12px; overflow:hidden; text-overflow:ellipsis; }
       #jtts-panel input:focus, #jtts-panel select:focus { border-color:#6b5b9a; outline:none; }
       #jtts-panel .st { display:flex; align-items:center; justify-content:space-between; margin-top:4px; padding-top:6px; border-top:1px solid #2a2a2a; }
       #jtts-panel .st .lbl { font-size:12px; color:#93959c; }
